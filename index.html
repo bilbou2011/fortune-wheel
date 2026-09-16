@@ -1,806 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FORTUNE PULSE 3000 | Decision Wheel</title>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<style>
-:root {
---topbar-bg: #0f1322;
---page-bg: #090b14;
---panel-bg: #131726;
---card-bg: #1c2238;
---primary: #3b82f6;
---primary-hover: #2563eb;
---accent: #10b981;
---text: #f3f4f6;
---text-muted: #9ca3af;
---border: #283149;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-
-body {
-background-color: var(--page-bg);
-color: var(--text);
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-overflow-x: hidden;
-}
-
-/* NAVBAR */
-header {
-background-color: var(--topbar-bg);
-border-bottom: 1px solid var(--border);
-height: 56px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 0 20px;
-box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
-
-.brand {
-display: flex;
-align-items: center;
-gap: 10px;
-font-weight: 800;
-font-size: 1.25rem;
-color: #fff;
-}
-
-.brand-logo {
-width: 28px;
-height: 28px;
-background: linear-gradient(135deg, #3b82f6, #ec4899);
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 14px;
-box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-}
-
-.nav-actions {
-display: flex;
-gap: 8px;
-}
-
-.nav-btn {
-background: transparent;
-border: none;
-color: var(--text-muted);
-padding: 8px 12px;
-border-radius: 6px;
-cursor: pointer;
-font-size: 0.88rem;
-font-weight: 600;
-display: flex;
-align-items: center;
-gap: 6px;
-transition: all 0.2s;
-}
-
-.nav-btn:hover {
-background: rgba(255, 255, 255, 0.08);
-color: var(--text);
-}
-
-/* MAIN APP VIEWPORT */
-.app-viewport {
-display: flex;
-flex: 1;
-height: calc(100vh - 56px);
-}
-
-/* WHEEL CONTAINER */
-.wheel-container {
-flex: 1;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-position: relative;
-padding: 20px;
-}
-
-.wheel-outer-frame {
-position: relative;
-width: clamp(320px, 45vw, 520px);
-height: clamp(320px, 45vw, 520px);
-border-radius: 50%;
-padding: 10px;
-background: linear-gradient(145deg, #2a3148, #121625);
-box-shadow:
-0 20px 50px rgba(0, 0, 0, 0.8),
-inset 0 2px 4px rgba(255, 255, 255, 0.2),
-inset 0 -4px 8px rgba(0, 0, 0, 0.6);
-display: flex;
-align-items: center;
-justify-content: center;
-}
-
-.wheel-wrapper {
-position: relative;
-width: 100%;
-height: 100%;
-display: flex;
-align-items: center;
-justify-content: center;
-}
-
-canvas {
-width: 100% !important;
-height: 100% !important;
-border-radius: 50%;
-cursor: pointer;
-}
-
-/* TICKER NEEDLE */
-.wheel-pointer {
-position: absolute;
-right: -24px;
-top: 50%;
-transform: translateY(-50%);
-width: 0;
-height: 0;
-border-top: 18px solid transparent;
-border-bottom: 18px solid transparent;
-border-right: 36px solid #10b981;
-filter: drop-shadow(-3px 3px 6px rgba(0,0,0,0.7));
-z-index: 20;
-transform-origin: 100% 50%;
-transition: transform 0.04s ease;
-}
-
-/* CENTER CAP */
-.center-hub {
-position: absolute;
-width: 105px;
-height: 105px;
-background: radial-gradient(circle, #ffffff 0%, #e2e8f0 70%, #cbd5e1 100%);
-border-radius: 50%;
-border: 4px solid #334155;
-box-shadow:
-0 6px 15px rgba(0, 0, 0, 0.5),
-inset 0 2px 4px rgba(255,255,255,0.8);
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-z-index: 15;
-user-select: none;
-transition: transform 0.15s ease;
-}
-
-.center-hub:hover {
-transform: scale(1.06);
-}
-
-.center-hub span {
-color: #0f172a;
-font-weight: 900;
-font-size: 0.9rem;
-text-align: center;
-line-height: 1.1;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-
-/* WINNER BANNER */
-.winner-display {
-margin-top: 20px;
-font-size: 1.8rem;
-font-weight: 800;
-color: #f59e0b;
-min-height: 40px;
-text-align: center;
-text-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-}
-
-/* SIDEBAR */
-.sidebar {
-width: 360px;
-background-color: var(--panel-bg);
-border-left: 1px solid var(--border);
-display: flex;
-flex-direction: column;
-padding: 16px;
-gap: 14px;
-}
-
-.sidebar-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-}
-
-.sidebar-title {
-font-size: 1rem;
-font-weight: 700;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-
-.badge {
-background: var(--card-bg);
-color: var(--primary);
-padding: 2px 8px;
-border-radius: 12px;
-font-size: 0.78rem;
-}
-
-.action-row {
-display: flex;
-gap: 8px;
-}
-
-.btn-action {
-flex: 1;
-background: var(--card-bg);
-border: 1px solid var(--border);
-color: var(--text);
-padding: 8px;
-border-radius: 6px;
-font-size: 0.82rem;
-font-weight: 600;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 6px;
-transition: all 0.2s;
-}
-
-.btn-action:hover {
-background: #28304c;
-border-color: #3f4d75;
-}
-
-.btn-primary {
-background: var(--primary);
-color: #fff;
-border: none;
-}
-
-.btn-primary:hover {
-background: var(--primary-hover);
-}
-
-textarea {
-width: 100%;
-height: 85px;
-background: var(--card-bg);
-border: 1px solid var(--border);
-border-radius: 8px;
-padding: 10px;
-color: var(--text);
-font-size: 0.88rem;
-resize: none;
-outline: none;
-}
-
-textarea:focus {
-border-color: var(--primary);
-}
-
-.entries-list {
-flex: 1;
-overflow-y: auto;
-display: flex;
-flex-direction: column;
-gap: 6px;
-padding-right: 4px;
-}
-
-.entry-item {
-background: var(--card-bg);
-border: 1px solid var(--border);
-border-radius: 6px;
-padding: 8px 12px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-font-size: 0.88rem;
-}
-
-.btn-sm {
-background: transparent;
-border: none;
-color: var(--text-muted);
-cursor: pointer;
-font-size: 1rem;
-padding: 2px 4px;
-border-radius: 4px;
-}
-
-.btn-sm:hover {
-color: #ef4444;
-background: rgba(239, 68, 68, 0.1);
-}
-
-.toggle-group {
-background: var(--card-bg);
-border: 1px solid var(--border);
-border-radius: 6px;
-padding: 10px 12px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-font-size: 0.82rem;
-}
-
-/* OFFICIAL COOKIE CONSENT BANNER */
-.cookie-banner {
-position: fixed;
-bottom: 20px;
-left: 50%;
-transform: translateX(-50%) translateY(150%);
-width: calc(100% - 40px);
-max-width: 780px;
-background: rgba(19, 23, 38, 0.95);
-border: 1px solid var(--border);
-backdrop-filter: blur(12px);
-border-radius: 12px;
-padding: 16px 20px;
-box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-z-index: 9999;
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 20px;
-transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.cookie-banner.show {
-transform: translateX(-50%) translateY(0);
-}
-
-.cookie-content {
-font-size: 0.85rem;
-color: var(--text-muted);
-line-height: 1.4;
-}
-
-.cookie-content strong {
-color: var(--text);
-}
-
-.cookie-actions {
-display: flex;
-gap: 10px;
-flex-shrink: 0;
-}
-
-.cookie-btn {
-padding: 8px 14px;
-border-radius: 6px;
-font-size: 0.82rem;
-font-weight: 700;
-cursor: pointer;
-border: 1px solid var(--border);
-transition: all 0.2s;
-}
-
-.cookie-btn-accept {
-background: var(--primary);
-color: #fff;
-border: none;
-}
-
-.cookie-btn-accept:hover {
-background: var(--primary-hover);
-}
-
-.cookie-btn-decline {
-background: var(--card-bg);
-color: var(--text);
-}
-
-.cookie-btn-decline:hover {
-background: #28304c;
-}
-
-@media (max-width: 900px) {
-.app-viewport { flex-direction: column; height: auto; }
-.sidebar { width: 100%; height: auto; }
-.wheel-outer-frame { width: 320px; height: 320px; }
-.cookie-banner { flex-direction: column; text-align: center; }
-.cookie-actions { width: 100%; justify-content: center; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fortune Pulse 3000 is a polished, customizable decision wheel.">
+  <title>Fortune Pulse 3000 | Decision Wheel</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='50%25' stop-color='%23ec4899'/%3E%3Cstop offset='100%25' stop-color='%23f59e0b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='url(%23g)'/%3E%3Cpath d='M50 18l8 24 24 8-24 8-8 24-8-24-24-8 24-8z' fill='white'/%3E%3C/svg%3E">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root { --bg:#080b16; --panel:#101629; --panel-2:#151d34; --border:#263250; --text:#f8fafc; --muted:#94a3b8; --primary:#6366f1; --primary-hover:#818cf8; --success:#34d399; --danger:#fb7185; }
+    * { box-sizing:border-box; }
+    html { color-scheme:dark; }
+    body { margin:0; min-height:100vh; overflow-x:hidden; color:var(--text); font:15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:radial-gradient(circle at 10% 0%, #172554 0, transparent 32rem),radial-gradient(circle at 90% 15%, #3b0764 0, transparent 28rem),var(--bg); }
+    button, textarea, input { font:inherit; }
+    button { cursor:pointer; }
+    button:focus-visible, textarea:focus-visible, input:focus-visible { outline:3px solid rgba(129,140,248,.55); outline-offset:2px; }
+    header { height:68px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:0 clamp(18px,4vw,48px); border-bottom:1px solid rgba(148,163,184,.14); background:rgba(8,11,22,.72); backdrop-filter:blur(18px); position:sticky; top:0; z-index:50; }
+    .brand { display:flex; align-items:center; gap:12px; min-width:0; font-weight:800; letter-spacing:.04em; }
+    .brand-logo { width:36px; height:36px; flex:none; display:grid; place-items:center; border-radius:12px; font-size:18px; background:linear-gradient(135deg,#4f46e5,#ec4899 55%,#f59e0b); box-shadow:0 8px 25px rgba(99,102,241,.35); }
+    .brand span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nav-actions, .action-row { display:flex; gap:8px; }
+    .nav-btn, .btn-action { border:1px solid transparent; color:var(--muted); background:transparent; border-radius:10px; padding:9px 12px; font-weight:650; transition:.2s ease; }
+    .nav-btn:hover, .btn-action:hover { color:var(--text); background:rgba(148,163,184,.1); border-color:var(--border); }
+    .app-viewport { display:grid; grid-template-columns:minmax(0,1fr) 370px; min-height:calc(100vh - 68px); }
+    .wheel-container { min-height:680px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px 48px; position:relative; }
+    .eyebrow { margin:0 0 16px; color:#a5b4fc; font-size:.76rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
+    .wheel-outer-frame { width:min(70vw,560px); aspect-ratio:1; padding:12px; position:relative; border-radius:50%; background:linear-gradient(145deg,#475569,#111827 48%,#020617); box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 2px 3px rgba(255,255,255,.22),0 0 0 1px rgba(148,163,184,.18); }
+    .wheel-wrapper { width:100%; height:100%; position:relative; display:grid; place-items:center; }
+    canvas { width:100%; height:100%; display:block; border-radius:50%; cursor:pointer; touch-action:manipulation; }
+    .wheel-pointer { position:absolute; right:-20px; top:50%; width:0; height:0; z-index:3; border-top:20px solid transparent; border-bottom:20px solid transparent; border-right:39px solid var(--success); filter:drop-shadow(-4px 4px 6px rgba(0,0,0,.65)); transform:translateY(-50%); transform-origin:100% 50%; transition:transform .045s ease; }
+    .center-hub { position:absolute; z-index:4; width:112px; aspect-ratio:1; display:grid; place-items:center; border:5px solid #334155; border-radius:50%; color:#111827; font-weight:900; font-size:.78rem; letter-spacing:.08em; text-align:center; text-transform:uppercase; background:radial-gradient(circle at 35% 25%,#fff,#e2e8f0 63%,#94a3b8); box-shadow:0 8px 20px rgba(0,0,0,.5),inset 0 2px 4px #fff; transition:transform .18s ease,filter .18s ease; }
+    .center-hub:hover { transform:scale(1.06); filter:brightness(1.05); }
+    .center-hub:disabled { cursor:not-allowed; opacity:.75; }
+    .winner-display { min-height:48px; margin-top:24px; color:#fbbf24; font-size:clamp(1.35rem,3vw,2rem); font-weight:850; text-align:center; text-shadow:0 0 22px rgba(251,191,36,.3); }
+    .sidebar { display:flex; flex-direction:column; gap:16px; padding:28px 20px; border-left:1px solid rgba(148,163,184,.14); background:rgba(16,22,41,.76); }
+    .sidebar-header { display:flex; align-items:center; justify-content:space-between; }
+    .sidebar-title { display:flex; align-items:center; gap:10px; font-size:1.05rem; font-weight:800; }
+    .badge { min-width:28px; padding:3px 8px; border-radius:999px; color:#c7d2fe; background:rgba(99,102,241,.2); text-align:center; font-size:.78rem; }
+    .btn-action { flex:1; background:var(--panel-2); border-color:var(--border); color:var(--text); }
+    .btn-primary { border-color:transparent; background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 8px 18px rgba(79,70,229,.22); }
+    .btn-primary:hover { background:linear-gradient(135deg,#6366f1,#8b5cf6); border-color:transparent; }
+    textarea { width:100%; min-height:102px; resize:vertical; padding:12px 13px; color:var(--text); border:1px solid var(--border); border-radius:12px; outline:none; background:var(--panel-2); }
+    textarea::placeholder { color:#64748b; }
+    textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+    .toggle-group { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px; color:var(--muted); border:1px solid var(--border); border-radius:12px; background:rgba(21,29,52,.7); font-size:.84rem; }
+    .toggle-group input { width:18px; height:18px; accent-color:var(--primary); }
+    .entries-list { flex:1; min-height:160px; max-height:calc(100vh - 490px); overflow:auto; display:flex; flex-direction:column; gap:7px; padding:2px 3px 2px 0; }
+    .entry-item { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--panel-2); animation:appear .18s ease-out; }
+    .entry-label { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .btn-sm { flex:none; width:28px; height:28px; border:0; border-radius:7px; color:var(--muted); background:transparent; }
+    .btn-sm:hover { color:var(--danger); background:rgba(251,113,133,.12); }
+    .empty-state { padding:35px 16px; color:var(--muted); text-align:center; border:1px dashed var(--border); border-radius:12px; }
+    .cookie-banner { position:fixed; left:50%; bottom:20px; z-index:100; width:min(780px,calc(100% - 32px)); display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 18px; border:1px solid var(--border); border-radius:16px; background:rgba(16,22,41,.94); box-shadow:0 20px 60px rgba(0,0,0,.45); backdrop-filter:blur(16px); transform:translate(-50%,calc(100% + 30px)); transition:transform .35s cubic-bezier(.16,1,.3,1); }
+    .cookie-banner.show { transform:translate(-50%,0); }
+    .cookie-content { color:var(--muted); font-size:.84rem; }
+    .cookie-content strong { color:var(--text); }
+    .cookie-actions { display:flex; flex:none; gap:8px; }
+    .cookie-btn { padding:9px 13px; border:1px solid var(--border); border-radius:9px; color:var(--text); background:var(--panel-2); font-weight:700; }
+    .cookie-btn-accept { border-color:transparent; background:var(--primary); }
+    .cookie-btn:hover { filter:brightness(1.12); }
+    @keyframes appear { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+    @media (max-width:900px) { .app-viewport { display:flex; flex-direction:column; } .wheel-container { min-height:unset; padding-top:38px; } .sidebar { border-top:1px solid rgba(148,163,184,.14); border-left:0; } .entries-list { max-height:360px; } }
+    @media (max-width:560px) { header { height:60px; padding:0 14px; } .brand span { font-size:.83rem; } .nav-actions { gap:2px; } .nav-btn { padding:8px 7px; font-size:0; } .nav-btn span, .nav-btn::first-letter { font-size:1rem; } .wheel-outer-frame { width:min(88vw,420px); } .wheel-container { padding:28px 12px 35px; } .center-hub { width:88px; font-size:.68rem; } .cookie-banner { flex-direction:column; align-items:stretch; text-align:center; } .cookie-actions { justify-content:center; } }
+  </style>
 </head>
 <body>
-
-<header>
-<div class="brand">
-<div class="brand-logo">⚡</div>
-<span>FORTUNE PULSE 3000</span>
-</div>
-<div class="nav-actions">
-<button class="nav-btn" onclick="clearWheel()">✨ New</button>
-<button class="nav-btn" onclick="shareWheel()">🔗 Share</button>
-<button class="nav-btn" onclick="toggleAudio()"><span id="audioStatusIcon">🔊</span> Sound</button>
-</div>
-</header>
-
-<div class="app-viewport">
-<div class="wheel-container">
-<div class="wheel-outer-frame">
-<div class="wheel-wrapper">
-<div class="wheel-pointer" id="pointer"></div>
-<canvas id="wheelCanvas" onclick="spin()"></canvas>
-<div class="center-hub" onclick="spin()">
-<span>Tap to<br>spin</span>
-</div>
-</div>
-</div>
-<div class="winner-display" id="winnerDisplay"></div>
-</div>
-
-<div class="sidebar">
-<div class="sidebar-header">
-<div class="sidebar-title">
-<span>Entries</span>
-<span class="badge" id="entryCount">0</span>
-</div>
-</div>
-
-<div class="action-row">
-<button class="btn-action" onclick="shuffleEntries()">🔀 Shuffle</button>
-<button class="btn-action" onclick="sortEntries()">🔤 Sort</button>
-</div>
-
-<textarea id="bulkInput" placeholder="Add entries here (one per line)..."></textarea>
-<button class="btn-action btn-primary" onclick="addBulkEntries()">+ Add Entries</button>
-
-<div class="toggle-group">
-<span>🎬 Tension Finish (Slow Motion)</span>
-<input type="checkbox" id="tensionToggle" checked>
-</div>
-
-<div class="toggle-group">
-<span>Remove winner after spin</span>
-<input type="checkbox" id="removeWinnerToggle">
-</div>
-
-<div class="entries-list" id="entriesList"></div>
-</div>
-</div>
-
-<!-- COOKIE CONSENT BANNER -->
-<div class="cookie-banner" id="cookieBanner">
-<div class="cookie-content">
-🍪 <strong>We value your privacy:</strong> We use cookies and local storage to save your custom wheel settings, preferences, and optimize performance.
-</div>
-<div class="cookie-actions">
-<button class="cookie-btn cookie-btn-decline" onclick="acceptCookies(false)">Essential Only</button>
-<button class="cookie-btn cookie-btn-accept" onclick="acceptCookies(true)">Accept All</button>
-</div>
-</div>
-
-<script>
-// COOKIE CONSENT BANNER HANDLER
-function checkCookieConsent() {
-const consent = localStorage.getItem('fp3000_cookie_consent');
-if (!consent) {
-setTimeout(() => {
-document.getElementById('cookieBanner').classList.add('show');
-}, 500);
-}
-}
-
-function acceptCookies(acceptAll) {
-localStorage.setItem('fp3000_cookie_consent', acceptAll ? 'accepted' : 'essential');
-document.getElementById('cookieBanner').classList.remove('show');
-}
-
-// SYNTHESIZED MECHANICAL AUDIO ENGINE (WEB AUDIO API)
-let audioEnabled = true;
-let audioCtx = null;
-
-function initAudio() {
-if (!audioCtx) {
-audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
-if (audioCtx.state === 'suspended') {
-audioCtx.resume();
-}
-}
-
-function playMechanicalTick(speed) {
-if (!audioEnabled) return;
-initAudio();
-
-const now = audioCtx.currentTime;
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
-const filter = audioCtx.createBiquadFilter();
-
-const baseFreq = 220 + Math.min(speed * 300, 350);
-osc.type = 'triangle';
-osc.frequency.setValueAtTime(baseFreq, now);
-osc.frequency.exponentialRampToValueAtTime(40, now + 0.03);
-
-filter.type = 'bandpass';
-filter.frequency.setValueAtTime(1200, now);
-
-gain.gain.setValueAtTime(0.3, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
-
-osc.connect(filter);
-filter.connect(gain);
-gain.connect(audioCtx.destination);
-
-osc.start(now);
-osc.stop(now + 0.04);
-}
-
-function playVictorySound() {
-if (!audioEnabled) return;
-initAudio();
-
-const notes = [261.63, 329.63, 392.00, 523.25];
-notes.forEach((freq, i) => {
-const now = audioCtx.currentTime + i * 0.09;
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
-
-osc.type = 'sine';
-osc.frequency.setValueAtTime(freq, now);
-
-gain.gain.setValueAtTime(0.2, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-
-osc.connect(gain);
-gain.connect(audioCtx.destination);
-
-osc.start(now);
-osc.stop(now + 0.35);
-});
-}
-
-function toggleAudio() {
-audioEnabled = !audioEnabled;
-document.getElementById('audioStatusIcon').innerText = audioEnabled ? '🔊' : '🔇';
-}
-
-// STATE & PALETTE
-let entries = ['Gabriel', 'Fatima', 'Eric', 'Diya', 'Charles', 'Beatriz', 'Ali', 'Hanna'];
-const colors = ['#dc2626', '#2563eb', '#059669', '#d97706', '#7c3aed', '#db2777', '#0891b2', '#65a30d'];
-
-const canvas = document.getElementById('wheelCanvas');
-const ctx = canvas.getContext('2d');
-let currentAngle = 0;
-let isSpinning = false;
-let lastSegment = -1;
-
-function resizeCanvas() {
-const dpi = window.devicePixelRatio || 1;
-const rect = canvas.getBoundingClientRect();
-canvas.width = rect.width * dpi;
-canvas.height = rect.height * dpi;
-ctx.resetTransform();
-ctx.scale(dpi, dpi);
-drawWheel();
-}
-
-function getFitText(text, maxRadius) {
-ctx.font = '700 14px -apple-system, sans-serif';
-if (ctx.measureText(text).width <= maxRadius) return text;
-let fit = text;
-while (fit.length > 0 && ctx.measureText(fit + '...').width > maxRadius) {
-fit = fit.substring(0, fit.length - 1);
-}
-return fit + '...';
-}
-
-function drawWheel() {
-const rect = canvas.getBoundingClientRect();
-const width = rect.width;
-const height = rect.height;
-const center = width / 2;
-const radius = center - 8;
-
-ctx.clearRect(0, 0, width, height);
-
-if (entries.length === 0) {
-ctx.fillStyle = '#6b7280';
-ctx.font = '600 16px sans-serif';
-ctx.textAlign = 'center';
-ctx.fillText('Add entries to begin', center, center);
-return;
-}
-
-const sliceArc = (Math.PI * 2) / entries.length;
-
-entries.forEach((entry, i) => {
-const startArc = currentAngle + i * sliceArc;
-const endArc = startArc + sliceArc;
-
-const midAngle = startArc + sliceArc / 2;
-const grad = ctx.createRadialGradient(center, center, 40, center, center, radius);
-grad.addColorStop(0, colors[i % colors.length]);
-grad.addColorStop(1, adjustColorBrightness(colors[i % colors.length], -35));
-
-ctx.beginPath();
-ctx.arc(center, center, radius, startArc, endArc, false);
-ctx.lineTo(center, center);
-ctx.fillStyle = grad;
-ctx.fill();
-
-ctx.lineWidth = 1.5;
-ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
-ctx.stroke();
-
-ctx.beginPath();
-ctx.arc(center, center, radius, startArc, endArc, false);
-ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-ctx.lineWidth = 3;
-ctx.stroke();
-
-ctx.save();
-ctx.fillStyle = '#ffffff';
-ctx.shadowColor = 'rgba(0,0,0,0.6)';
-ctx.shadowBlur = 4;
-
-ctx.translate(
-center + Math.cos(midAngle) * (radius * 0.58),
-center + Math.sin(midAngle) * (radius * 0.58)
-);
-ctx.rotate(midAngle + Math.PI);
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-
-const safeTextWidth = radius * 0.42;
-const textToDraw = getFitText(entry, safeTextWidth);
-ctx.fillText(textToDraw, 0, 0);
-ctx.restore();
-
-const pegAngle = startArc;
-const pegX = center + Math.cos(pegAngle) * (radius - 6);
-const pegY = center + Math.sin(pegAngle) * (radius - 6);
-
-ctx.beginPath();
-ctx.arc(pegX, pegY, 3.5, 0, Math.PI * 2);
-ctx.fillStyle = '#f8fafc';
-ctx.fill();
-ctx.strokeStyle = '#334155';
-ctx.lineWidth = 1;
-ctx.stroke();
-});
-}
-
-function adjustColorBrightness(hex, percent) {
-let num = parseInt(hex.replace('#',''), 16),
-amt = Math.round(2.55 * percent),
-R = (num >> 16) + amt,
-G = (num >> 8 & 0x00FF) + amt,
-B = (num & 0x0000FF) + amt;
-return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
-}
-
-function renderEntries() {
-const list = document.getElementById('entriesList');
-list.innerHTML = '';
-document.getElementById('entryCount').innerText = entries.length;
-
-entries.forEach((entry, index) => {
-const item = document.createElement('div');
-item.className = 'entry-item';
-item.innerHTML = `
-<span>${entry}</span>
-<button class="btn-sm" onclick="removeEntry(${index})">✕</button>
-`;
-list.appendChild(item);
-});
-
-drawWheel();
-}
-
-function addBulkEntries() {
-const area = document.getElementById('bulkInput');
-const lines = area.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-if (lines.length > 0) {
-entries.push(...lines);
-area.value = '';
-renderEntries();
-}
-}
-
-function removeEntry(index) {
-entries.splice(index, 1);
-renderEntries();
-}
-
-function shuffleEntries() {
-entries.sort(() => Math.random() - 0.5);
-renderEntries();
-}
-
-function sortEntries() {
-entries.sort((a, b) => a.localeCompare(b));
-renderEntries();
-}
-
-function clearWheel() {
-entries = [];
-renderEntries();
-}
-
-function shareWheel() {
-navigator.clipboard.writeText(window.location.href);
-alert('Link copied to clipboard!');
-}
-
-function spin() {
-if (isSpinning || entries.length < 2) return;
-isSpinning = true;
-initAudio();
-
-document.getElementById('winnerDisplay').innerText = '';
-let velocity = Math.random() * 0.22 + 0.36;
-let friction = 0.988;
-const tensionEnabled = document.getElementById('tensionToggle').checked;
-
-const pointer = document.getElementById('pointer');
-
-function animate() {
-if (tensionEnabled && velocity < 0.035 && velocity > 0.005) {
-friction = 0.978;
-}
-
-velocity *= friction;
-currentAngle += velocity;
-
-const sliceArc = (Math.PI * 2) / entries.length;
-let normalizedAngle = (2 * Math.PI - (currentAngle % (2 * Math.PI))) % (2 * Math.PI);
-let currentSegment = Math.floor(normalizedAngle / sliceArc);
-
-if (currentSegment !== lastSegment) {
-playMechanicalTick(velocity);
-pointer.style.transform = 'translateY(-50%) rotate(-18deg)';
-setTimeout(() => pointer.style.transform = 'translateY(-50%) rotate(0deg)', 40);
-lastSegment = currentSegment;
-}
-
-drawWheel();
-
-if (velocity > 0.0006) {
-requestAnimationFrame(animate);
-} else {
-isSpinning = false;
-announceWinner(currentSegment);
-}
-}
-
-animate();
-}
-
-function announceWinner(index) {
-const winner = entries[index];
-const display = document.getElementById('winnerDisplay');
-display.innerText = `🎉 ${winner}!`;
-playVictorySound();
-
-confetti({ particleCount: 110, spread: 80, origin: { y: 0.6 } });
-
-if (document.getElementById('removeWinnerToggle').checked) {
-setTimeout(() => removeEntry(index), 1200);
-}
-}
-
-// INITIALIZATION
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('load', () => {
-resizeCanvas();
-renderEntries();
-checkCookieConsent();
-});
-</script>
+  <header>
+    <div class="brand"><div class="brand-logo" aria-hidden="true">✦</div><span>FORTUNE PULSE 3000</span></div>
+    <nav class="nav-actions" aria-label="Application actions">
+      <button class="nav-btn" type="button" id="newButton">✨ <span>New</span></button>
+      <button class="nav-btn" type="button" id="shareButton">🔗 <span>Share</span></button>
+      <button class="nav-btn" type="button" id="audioButton"><span id="audioStatusIcon" aria-hidden="true">🔊</span> <span>Sound</span></button>
+    </nav>
+  </header>
+
+  <main class="app-viewport">
+    <section class="wheel-container" aria-label="Decision wheel">
+      <p class="eyebrow">Make the call</p>
+      <div class="wheel-outer-frame">
+        <div class="wheel-wrapper">
+          <div class="wheel-pointer" id="pointer" aria-hidden="true"></div>
+          <canvas id="wheelCanvas" aria-label="Decision wheel. Press the spin button to choose an entry."></canvas>
+          <button class="center-hub" id="spinButton" type="button"><span>Tap to<br>spin</span></button>
+        </div>
+      </div>
+      <div class="winner-display" id="winnerDisplay" role="status" aria-live="polite"></div>
+    </section>
+
+    <aside class="sidebar" aria-label="Wheel settings">
+      <div class="sidebar-header"><div class="sidebar-title">Entries <span class="badge" id="entryCount">0</span></div></div>
+      <div class="action-row"><button class="btn-action" type="button" id="shuffleButton">🔀 Shuffle</button><button class="btn-action" type="button" id="sortButton">🔤 Sort</button></div>
+      <textarea id="bulkInput" placeholder="Add entries here, one per line…" aria-label="Entries to add"></textarea>
+      <button class="btn-action btn-primary" type="button" id="addButton">＋ Add entries</button>
+      <label class="toggle-group"><span>🎬 Tension finish <small>(slow motion)</small></span><input type="checkbox" id="tensionToggle" checked></label>
+      <label class="toggle-group"><span>Remove winner after spin</span><input type="checkbox" id="removeWinnerToggle"></label>
+      <div class="entries-list" id="entriesList" aria-live="polite"></div>
+    </aside>
+  </main>
+
+  <div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Privacy preferences" aria-live="polite">
+    <div class="cookie-content">🍪 <strong>Your privacy matters.</strong> We use local storage to remember your wheel and preferences. No account is required.</div>
+    <div class="cookie-actions"><button class="cookie-btn" type="button" id="essentialButton">Essential only</button><button class="cookie-btn cookie-btn-accept" type="button" id="acceptButton">Accept all</button></div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+      const DEFAULT_ENTRIES = ['Gabriel', 'Fatima', 'Eric', 'Diya', 'Charles', 'Beatriz', 'Ali', 'Hanna'];
+      const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+      const STORAGE_KEY = 'fortune-pulse-state-v2';
+      const $ = (id) => document.getElementById(id);
+      const canvas = $('wheelCanvas');
+      const ctx = canvas.getContext('2d');
+      let entries = [...DEFAULT_ENTRIES];
+      let currentAngle = 0;
+      let isSpinning = false;
+      let lastSegment = -1;
+      let audioEnabled = true;
+      let audioCtx = null;
+
+      function normalizedAngle(angle) { return ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2); }
+      function adjustColor(hex, amount) {
+        const num = parseInt(hex.slice(1), 16);
+        const clamp = (value) => Math.max(0, Math.min(255, value));
+        const r = clamp((num >> 16) + amount), g = clamp(((num >> 8) & 255) + amount), b = clamp((num & 255) + amount);
+        return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+      }
+      function fitText(text, maxWidth) {
+        ctx.font = '700 14px Inter, system-ui, sans-serif';
+        if (ctx.measureText(text).width <= maxWidth) return text;
+        let value = text;
+        while (value.length && ctx.measureText(`${value}…`).width > maxWidth) value = value.slice(0, -1);
+        return `${value}…`;
+      }
+      function drawWheel() {
+        const width = canvas.clientWidth, height = canvas.clientHeight, center = width / 2, radius = center - 7;
+        if (!width || !height) return;
+        ctx.clearRect(0, 0, width, height);
+        if (!entries.length) { ctx.fillStyle = '#94a3b8'; ctx.font = '700 16px system-ui'; ctx.textAlign = 'center'; ctx.fillText('Add entries to begin', center, center); return; }
+        const slice = (Math.PI * 2) / entries.length;
+        entries.forEach((entry, index) => {
+          const start = currentAngle + index * slice, end = start + slice, mid = start + slice / 2;
+          const gradient = ctx.createRadialGradient(center, center, 25, center, center, radius);
+          gradient.addColorStop(0, COLORS[index % COLORS.length]); gradient.addColorStop(1, adjustColor(COLORS[index % COLORS.length], -35));
+          ctx.beginPath(); ctx.moveTo(center, center); ctx.arc(center, center, radius, start, end); ctx.closePath(); ctx.fillStyle = gradient; ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 2; ctx.stroke();
+          ctx.save(); ctx.translate(center + Math.cos(mid) * radius * .58, center + Math.sin(mid) * radius * .58); ctx.rotate(mid + Math.PI); ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 4; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(fitText(entry, radius * .4), 0, 0); ctx.restore();
+          const pegX = center + Math.cos(start) * (radius - 6), pegY = center + Math.sin(start) * (radius - 6); ctx.beginPath(); ctx.arc(pegX, pegY, 3.5, 0, Math.PI * 2); ctx.fillStyle = '#f8fafc'; ctx.fill(); ctx.strokeStyle = '#334155'; ctx.lineWidth = 1; ctx.stroke();
+        });
+      }
+      function resizeCanvas() { const ratio = window.devicePixelRatio || 1, rect = canvas.getBoundingClientRect(); canvas.width = Math.max(1, Math.round(rect.width * ratio)); canvas.height = Math.max(1, Math.round(rect.height * ratio)); ctx.setTransform(ratio, 0, 0, ratio, 0, 0); drawWheel(); }
+      function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ entries, audioEnabled })); } catch (_) {} }
+      function loadState() { try { const state = JSON.parse(localStorage.getItem(STORAGE_KEY)); if (state && Array.isArray(state.entries)) entries = state.entries.filter((entry) => typeof entry === 'string' && entry.trim()).slice(0, 100); if (state && typeof state.audioEnabled === 'boolean') audioEnabled = state.audioEnabled; } catch (_) {} }
+      function renderEntries() {
+        $('entryCount').textContent = entries.length;
+        const list = $('entriesList'); list.replaceChildren();
+        if (!entries.length) { const empty = document.createElement('div'); empty.className = 'empty-state'; empty.textContent = 'Your wheel is empty. Add a few choices above.'; list.appendChild(empty); drawWheel(); return; }
+        entries.forEach((entry, index) => { const item = document.createElement('div'); item.className = 'entry-item'; const label = document.createElement('span'); label.className = 'entry-label'; label.textContent = entry; const remove = document.createElement('button'); remove.className = 'btn-sm'; remove.type = 'button'; remove.title = `Remove ${entry}`; remove.setAttribute('aria-label', `Remove ${entry}`); remove.textContent = '×'; remove.addEventListener('click', () => { entries.splice(index, 1); renderEntries(); saveState(); }); item.append(label, remove); list.appendChild(item); }); drawWheel();
+      }
+      function addBulkEntries() { const values = $('bulkInput').value.split(/\r?\n/).map((value) => value.trim()).filter(Boolean).slice(0, 100 - entries.length); if (!values.length) return; entries.push(...values); $('bulkInput').value = ''; renderEntries(); saveState(); }
+      function initAudio() { if (!audioEnabled || !window.AudioContext && !window.webkitAudioContext) return; if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {}); }
+      function playTick(speed) { if (!audioEnabled || !audioCtx) return; const now = audioCtx.currentTime, osc = audioCtx.createOscillator(), gain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(180 + Math.min(speed * 280, 280), now); osc.frequency.exponentialRampToValueAtTime(45, now + .035); gain.gain.setValueAtTime(.12, now); gain.gain.exponentialRampToValueAtTime(.001, now + .04); osc.connect(gain).connect(audioCtx.destination); osc.start(now); osc.stop(now + .045); }
+      function playVictory() { if (!audioEnabled || !audioCtx) return; [261.63, 329.63, 392, 523.25].forEach((frequency, index) => { const now = audioCtx.currentTime + index * .08, osc = audioCtx.createOscillator(), gain = audioCtx.createGain(); osc.frequency.value = frequency; gain.gain.setValueAtTime(.13, now); gain.gain.exponentialRampToValueAtTime(.001, now + .28); osc.connect(gain).connect(audioCtx.destination); osc.start(now); osc.stop(now + .3); }); }
+      function spin() {
+        if (isSpinning || entries.length < 2) { if (entries.length < 2) $('winnerDisplay').textContent = 'Add at least two entries to spin.'; return; }
+        isSpinning = true; $('spinButton').disabled = true; $('winnerDisplay').textContent = ''; initAudio();
+        let velocity = .34 + Math.random() * .2, friction = .988; lastSegment = -1;
+        const animate = () => { if ($('tensionToggle').checked && velocity < .035 && velocity > .005) friction = .978; velocity *= friction; currentAngle += velocity; const slice = (Math.PI * 2) / entries.length; const winnerIndex = Math.floor(normalizedAngle(-currentAngle) / slice); if (winnerIndex !== lastSegment) { playTick(velocity); lastSegment = winnerIndex; $('pointer').style.transform = 'translateY(-50%) rotate(-18deg)'; window.setTimeout(() => { $('pointer').style.transform = 'translateY(-50%)'; }, 45); } drawWheel(); if (velocity > .0006) requestAnimationFrame(animate); else { isSpinning = false; $('spinButton').disabled = false; announceWinner(winnerIndex); } }; animate();
+      }
+      function announceWinner(index) { const winner = entries[index]; if (!winner) return; $('winnerDisplay').textContent = `🎉 ${winner}!`; playVictory(); if (typeof confetti === 'function') confetti({ particleCount: 120, spread: 78, origin: { y: .62 } }); if ($('removeWinnerToggle').checked) window.setTimeout(() => { if (entries[index] === winner) entries.splice(index, 1); else { const found = entries.indexOf(winner); if (found >= 0) entries.splice(found, 1); } renderEntries(); saveState(); }, 1100); }
+      async function shareWheel() { const url = window.location.href; try { await navigator.clipboard.writeText(url); $('shareButton').querySelector('span').textContent = 'Copied!'; window.setTimeout(() => $('shareButton').querySelector('span').textContent = 'Share', 1400); } catch (_) { window.prompt('Copy your wheel link:', url); } }
+      function acceptCookies(value) { localStorage.setItem('fp3000_cookie_consent', value ? 'accepted' : 'essential'); $('cookieBanner').classList.remove('show'); }
+      $('spinButton').addEventListener('click', spin); canvas.addEventListener('click', spin); $('addButton').addEventListener('click', addBulkEntries); $('bulkInput').addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') addBulkEntries(); }); $('shuffleButton').addEventListener('click', () => { for (let i = entries.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [entries[i], entries[j]] = [entries[j], entries[i]]; } renderEntries(); saveState(); }); $('sortButton').addEventListener('click', () => { entries.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })); renderEntries(); saveState(); }); $('newButton').addEventListener('click', () => { if (entries.length && !window.confirm('Start a new wheel and remove the current entries?')) return; entries = []; $('winnerDisplay').textContent = ''; renderEntries(); saveState(); }); $('shareButton').addEventListener('click', shareWheel); $('audioButton').addEventListener('click', () => { audioEnabled = !audioEnabled; $('audioStatusIcon').textContent = audioEnabled ? '🔊' : '🔇'; if (audioEnabled) initAudio(); saveState(); }); $('essentialButton').addEventListener('click', () => acceptCookies(false)); $('acceptButton').addEventListener('click', () => acceptCookies(true)); window.addEventListener('resize', resizeCanvas);
+      loadState(); $('audioStatusIcon').textContent = audioEnabled ? '🔊' : '🔇'; renderEntries(); requestAnimationFrame(resizeCanvas); if (!localStorage.getItem('fp3000_cookie_consent')) window.setTimeout(() => $('cookieBanner').classList.add('show'), 700);
+    })();
+  </script>
 </body>
 </html>
